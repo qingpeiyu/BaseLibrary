@@ -5,6 +5,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.cqmas.library.BaseApplication;
 import com.cqmas.library.network.cookie.CookieResulte;
+import com.cqmas.library.network.cookie.CookieResulteDao;
+import com.cqmas.library.network.cookie.DaoMaster;
+import com.cqmas.library.network.cookie.DaoSession;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
