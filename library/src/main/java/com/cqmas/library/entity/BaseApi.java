@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 
 import com.cqmas.library.network.HttpOnNextListener;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
+import com.trello.rxlifecycle2.components.support.RxFragment;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -19,8 +20,12 @@ import retrofit2.Retrofit;
  * 请求数据统一封装类
  */
 public abstract class BaseApi<T> {
+    public static int FROM_ACTIVITY = 1;
+    public static int FROM_FRAGMENT = 2;
     //rx生命周期管理
+    private int isFrom = FROM_ACTIVITY;
     private SoftReference<RxAppCompatActivity> rxAppCompatActivity;
+    private SoftReference<RxFragment> rxFragment;
     /*回调*/
     private SoftReference<HttpOnNextListener> listener;
     /*是否能取消加载框*/
@@ -42,11 +47,24 @@ public abstract class BaseApi<T> {
 
     private List<Interceptor> interceptors = new ArrayList<>();
 
+    /**
+     * Activity 中的网络请求初始化
+     */
     public BaseApi(HttpOnNextListener listener, RxAppCompatActivity rxAppCompatActivity) {
+        isFrom = FROM_ACTIVITY;
         setListener(listener);
         setRxAppCompatActivity(rxAppCompatActivity);
-        setShowProgress(true);
         setBaseUrl(getBaseUrl(rxAppCompatActivity.getApplicationContext()));
+    }
+
+    /**
+     * Fragmen 中的网络请求初始化
+     */
+    public BaseApi(HttpOnNextListener listener, RxFragment rxFragment) {
+        isFrom = FROM_FRAGMENT;
+        setListener(listener);
+        setRxFragment(rxFragment);
+        setBaseUrl(getBaseUrl(rxFragment.getActivity().getApplicationContext()));
     }
 
     public  void addOkHttpInterceptor(Interceptor interceptor){
@@ -129,8 +147,16 @@ public abstract class BaseApi<T> {
         return baseUrl + mothed;
     }
 
+    public int getIsFrom() {
+        return isFrom;
+    }
+
     public void setRxAppCompatActivity(RxAppCompatActivity rxAppCompatActivity) {
         this.rxAppCompatActivity = new SoftReference(rxAppCompatActivity);
+    }
+
+    public void setRxFragment(RxFragment rxFragment) {
+        this.rxFragment = new SoftReference(rxFragment);
     }
 
     public boolean isCache() {
@@ -172,5 +198,7 @@ public abstract class BaseApi<T> {
     public RxAppCompatActivity getRxAppCompatActivity() {
         return rxAppCompatActivity.get();
     }
-
+    public RxFragment getRxFragment() {
+        return rxFragment.get();
+    }
 }

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.cqmas.library.network.BaseResultData;
 import com.cqmas.library.network.HttpOnNextListener;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
+import com.trello.rxlifecycle2.components.support.RxFragment;
 
 import io.reactivex.functions.Function;
 
@@ -26,6 +27,9 @@ public abstract class BaseResultApi<T> extends BaseApi implements Function<BaseR
 
     public BaseResultApi(HttpOnNextListener<T> listener, RxAppCompatActivity rxAppCompatActivity) {
         super(listener, rxAppCompatActivity);
+    }
+    public BaseResultApi(HttpOnNextListener<T> listener, RxFragment rxFragment) {
+        super(listener, rxFragment);
     }
 
 

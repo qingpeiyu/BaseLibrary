@@ -9,6 +9,7 @@ import com.cqmas.library.network.cookie.CacheInterceptor;
 import com.cqmas.library.network.exception.RetryWhenNetworkException;
 import com.cqmas.library.subscribers.ProgressSubscriber;
 import com.trello.rxlifecycle2.android.ActivityEvent;
+import com.trello.rxlifecycle2.android.FragmentEvent;
 
 import java.io.File;
 import java.util.List;
@@ -99,14 +100,17 @@ public class HttpManager {
 
         /*rx处理*/
         ProgressSubscriber subscriber = new ProgressSubscriber(basePar);
-        Observable observable = basePar.getObservable(retrofit)
+        Observable observable = basePar.getObservable(retrofit);
                 /*失败后的retry配置*/
-                .retryWhen(new RetryWhenNetworkException())
+        observable.retryWhen(new RetryWhenNetworkException());
                 /*生命周期管理*/
-//                .compose(basePar.getRxAppCompatActivity().bindToLifecycle())
-                .compose(basePar.getRxAppCompatActivity().bindUntilEvent(ActivityEvent.DESTROY))
+        if (basePar.getIsFrom() == BaseApi.FROM_ACTIVITY) {
+            observable.compose(basePar.getRxAppCompatActivity().bindUntilEvent(ActivityEvent.DESTROY));
+        } else if (basePar.getIsFrom() == BaseApi.FROM_FRAGMENT) {
+            observable.compose(basePar.getRxFragment().bindUntilEvent(FragmentEvent.DESTROY));
+        }
                 /*http请求线程*/
-                .subscribeOn(Schedulers.io())
+        observable.subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 /*回调线程*/
                 .observeOn(AndroidSchedulers.mainThread());
@@ -118,6 +122,6 @@ public class HttpManager {
         /*数据回调*/
         observable.subscribe(subscriber);
 
-        return  observable;
+        return observable;
     }
 }
